@@ -1,0 +1,2 @@
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+export function createCamera(THREE,renderer,scene){const camera=new THREE.PerspectiveCamera(48,innerWidth/innerHeight,.1,180);camera.position.set(23,23,29);const controls=new OrbitControls(camera,renderer.domElement);controls.target.set(0,0,0);controls.enableDamping=true;controls.dampingFactor=.06;controls.minDistance=7;controls.maxDistance=65;controls.maxPolarAngle=Math.PI*.48;return {camera,controls}}
