@@ -1,0 +1,583 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pallet Town 3D</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  overflow: hidden;
+  background: #87ceeb;
+  font-family: Arial, sans-serif;
+}
+
+canvas {
+  display: block;
+}
+
+#info {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  color: white;
+  background: rgba(0,0,0,.55);
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  pointer-events: none;
+}
+</style>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+
+<body>
+
+<div id="info">
+  POKÉMON — PALLET TOWN 3D<br>
+  Arraste para girar | Pinça para zoom
+</div>
+
+<script type="module">
+
+import * as THREE from 'three';
+import { OrbitControls } from
+'three/addons/controls/OrbitControls.js';
+
+// ======================================
+// 1. CENA E CÂMERA
+// ======================================
+
+const scene = new THREE.Scene();
+
+scene.background = new THREE.Color(0x87ceeb);
+
+scene.fog = new THREE.Fog(0x87ceeb, 65, 115);
+
+const camera = new THREE.PerspectiveCamera(
+  55,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  300
+);
+
+camera.position.set(37, 32, 42);
+camera.lookAt(0, 0, 0);
+
+// ======================================
+// 2. RENDERIZADOR
+// ======================================
+
+const renderer = new THREE.WebGLRenderer({
+  antialias: true,
+  powerPreference: "high-performance"
+});
+
+renderer.setSize(
+  window.innerWidth,
+  window.innerHeight
+);
+
+renderer.setPixelRatio(
+  Math.min(window.devicePixelRatio, 1.5)
+);
+
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+document.body.appendChild(renderer.domElement);
+
+// ======================================
+// 3. CONTROLES DA CÂMERA
+// ======================================
+
+const controls = new OrbitControls(
+  camera,
+  renderer.domElement
+);
+
+controls.target.set(0, 0, 0);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+
+controls.minDistance = 12;
+controls.maxDistance = 85;
+
+controls.maxPolarAngle = Math.PI / 2.05;
+
+// ======================================
+// 4. ILUMINAÇÃO
+// ======================================
+
+const ambient = new THREE.HemisphereLight(
+  0xffffff,
+  0x668855,
+  2
+);
+
+scene.add(ambient);
+
+const sunlight = new THREE.DirectionalLight(
+  0xffffff,
+  2.2
+);
+
+sunlight.position.set(-25, 40, 20);
+scene.add(sunlight);
+
+// ======================================
+// 5. MATERIAIS
+// ======================================
+
+function material(color) {
+  return new THREE.MeshStandardMaterial({
+    color: color,
+    roughness: 1
+  });
+}
+
+const grassMat = material(0x66a94c);
+const roadMat = material(0xc6a477);
+const whiteMat = material(0xf0eee0);
+const redMat = material(0xc94c43);
+const roofMat = material(0x9c4039);
+const woodMat = material(0x98613c);
+const darkMat = material(0x493c35);
+const glassMat = material(0x6daecb);
+const greenMat = material(0x337d39);
+
+// ======================================
+// 6. FUNÇÃO PARA CRIAR CUBOS
+// ======================================
+
+function cube(
+  x, y, z,
+  width, height, depth,
+  mat,
+  parent = scene
+) {
+
+  const mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(
+      width, height, depth
+    ),
+    mat
+  );
+
+  mesh.position.set(x, y, z);
+
+  parent.add(mesh);
+
+  return mesh;
+}
+
+// ======================================
+// 7. TERRENO
+// ======================================
+
+cube(
+  0, -0.3, 0,
+  100, 0.5, 100,
+  grassMat
+);
+
+// ======================================
+// 8. ESTRADAS
+// ======================================
+
+// Estrada principal
+cube(
+  0, 0, 17,
+  13, 0.08, 38,
+  roadMat
+);
+
+// Caminho para o laboratório
+cube(
+  0, 0.03, -7,
+  7, 0.08, 15,
+  roadMat
+);
+
+// Caminho da casa esquerda
+cube(
+  -12, 0.03, 1,
+  7, 0.08, 10,
+  roadMat
+);
+
+// Caminho da casa direita
+cube(
+  12, 0.03, 1,
+  7, 0.08, 10,
+  roadMat
+);
+
+// ======================================
+// 9. FUNÇÃO DE CASAS
+// ======================================
+
+function createHouse(x, z, color) {
+
+  const house = new THREE.Group();
+
+  house.position.set(x, 0, z);
+
+  // Paredes
+  const walls = new THREE.Mesh(
+    new THREE.BoxGeometry(9, 5, 7),
+    material(color)
+  );
+
+  walls.position.y = 2.5;
+  house.add(walls);
+
+  // Telhado
+  const roof = new THREE.Mesh(
+    new THREE.ConeGeometry(6.8, 3.5, 4),
+    roofMat
+  );
+
+  roof.position.y = 6.5;
+  roof.rotation.y = Math.PI / 4;
+
+  house.add(roof);
+
+  // Porta
+  cube(
+    0, 1.4, 3.55,
+    1.6, 2.8, 0.15,
+    woodMat,
+    house
+  );
+
+  // Janelas
+  cube(
+    -2.8, 2.8, 3.57,
+    1.6, 1.5, 0.12,
+    glassMat,
+    house
+  );
+
+  cube(
+    2.8, 2.8, 3.57,
+    1.6, 1.5, 0.12,
+    glassMat,
+    house
+  );
+
+  // Base
+  cube(
+    0, 0.1, 0,
+    9.6, 0.2, 7.6,
+    whiteMat,
+    house
+  );
+
+  scene.add(house);
+
+  return house;
+}
+
+// ======================================
+// 10. CASAS DE PALLET
+// ======================================
+
+// Casa do protagonista
+createHouse(-13, 1, 0xf0d7ae);
+
+// Segunda casa
+createHouse(13, 1, 0xe4d8c5);
+
+// ======================================
+// 11. LABORATÓRIO DO PROFESSOR
+// ======================================
+
+const lab = new THREE.Group();
+
+// Construção principal
+cube(
+  0, 3, -17,
+  15, 6, 11,
+  whiteMat,
+  lab
+);
+
+// Telhado
+const labRoof = new THREE.Mesh(
+  new THREE.BoxGeometry(16, 0.7, 12),
+  material(0x426c9a)
+);
+
+labRoof.position.set(0, 6.4, -17);
+lab.add(labRoof);
+
+// Entrada
+cube(
+  0, 1.5, -11.43,
+  2.5, 3, 0.15,
+  woodMat,
+  lab
+);
+
+// Janelas frontais
+cube(
+  -5, 3.5, -11.43,
+  2.5, 2.2, 0.15,
+  glassMat,
+  lab
+);
+
+cube(
+  5, 3.5, -11.43,
+  2.5, 2.2, 0.15,
+  glassMat,
+  lab
+);
+
+// Placa
+cube(
+  0, 5, -11.35,
+  5, 0.8, 0.2,
+  material(0x315b88),
+  lab
+);
+
+scene.add(lab);
+
+// ======================================
+// 12. ÁRVORES
+// ======================================
+
+function createTree(x, z, scale = 1) {
+
+  const tree = new THREE.Group();
+
+  const trunk = new THREE.Mesh(
+    new THREE.CylinderGeometry(
+      0.35 * scale,
+      0.5 * scale,
+      2 * scale,
+      6
+    ),
+    woodMat
+  );
+
+  trunk.position.y = scale;
+  tree.add(trunk);
+
+  const leaves = new THREE.Mesh(
+    new THREE.ConeGeometry(
+      2.2 * scale,
+      5 * scale,
+      7
+    ),
+    greenMat
+  );
+
+  leaves.position.y = 4 * scale;
+  tree.add(leaves);
+
+  tree.position.set(x, 0, z);
+
+  scene.add(tree);
+}
+
+// Árvores distribuídas pela cidade
+const treePositions = [
+  [-25,-25], [-19,-25], [20,-25], [27,-20],
+  [-27,0], [-25,10], [25,0], [27,12],
+  [-24,24], [-17,26], [17,25], [25,26],
+  [-7,-27], [8,-28], [-8,28], [8,29],
+  [-19,-10], [19,-10]
+];
+
+treePositions.forEach((p, i) => {
+  createTree(
+    p[0],
+    p[1],
+    i % 3 === 0 ? 1.2 : 1
+  );
+});
+
+// ======================================
+// 13. LAGO
+// ======================================
+
+const lake = new THREE.Mesh(
+  new THREE.CircleGeometry(7, 32),
+  material(0x329bc2)
+);
+
+lake.rotation.x = -Math.PI / 2;
+lake.position.set(27, 0.02, -16);
+
+scene.add(lake);
+
+// Margem do lago
+const lakeBorder = new THREE.Mesh(
+  new THREE.RingGeometry(7, 7.7, 32),
+  material(0x8caa70)
+);
+
+lakeBorder.rotation.x = -Math.PI / 2;
+lakeBorder.position.set(27, 0.01, -16);
+
+scene.add(lakeBorder);
+
+// ======================================
+// 14. PLACAS DA CIDADE
+// ======================================
+
+function createSign(x, z, text) {
+
+  const sign = new THREE.Group();
+
+  cube(
+    0, 1, 0,
+    0.2, 2, 0.2,
+    woodMat,
+    sign
+  );
+
+  cube(
+    0, 2.1, 0,
+    2.8, 0.9, 0.25,
+    material(0x365c35),
+    sign
+  );
+
+  // Texto usando textura Canvas
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 128;
+
+  const ctx = canvas.getContext('2d');
+
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 48px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText(text, 256, 80);
+
+  const texture = new THREE.CanvasTexture(canvas);
+
+  const textMesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(2.6, 0.65),
+    new THREE.MeshBasicMaterial({
+      map: texture,
+      transparent: true
+    })
+  );
+
+  textMesh.position.set(0, 2.1, 0.14);
+  sign.add(textMesh);
+
+  sign.position.set(x, 0, z);
+  scene.add(sign);
+}
+
+createSign(0, 30, 'PALLET TOWN');
+createSign(0, -8, 'LABORATÓRIO');
+
+// ======================================
+// 15. NUVENS
+// ======================================
+
+const clouds = [];
+
+function createCloud(x, y, z) {
+
+  const group = new THREE.Group();
+
+  for (let i = 0; i < 4; i++) {
+
+    const part = new THREE.Mesh(
+      new THREE.SphereGeometry(
+        1.8 + Math.random(),
+        8, 8
+      ),
+      material(0xffffff)
+    );
+
+    part.position.set(
+      i * 1.5,
+      Math.random() * 0.5,
+      0
+    );
+
+    group.add(part);
+  }
+
+  group.position.set(x, y, z);
+  scene.add(group);
+
+  clouds.push(group);
+}
+
+createCloud(-20, 24, -20);
+createCloud(15, 27, 10);
+createCloud(30, 22, -25);
+
+// ======================================
+// 16. ANIMAÇÃO
+// ======================================
+
+const clock = new THREE.Clock();
+
+function animate() {
+
+  requestAnimationFrame(animate);
+
+  const delta = clock.getDelta();
+
+  // Movimento das nuvens
+  clouds.forEach(cloud => {
+
+    cloud.position.x += delta * 0.6;
+
+    if (cloud.position.x > 45) {
+      cloud.position.x = -45;
+    }
+
+  });
+
+  controls.update();
+
+  renderer.render(scene, camera);
+}
+
+animate();
+
+// ======================================
+// 17. RESPONSIVIDADE
+// ======================================
+
+window.addEventListener('resize', () => {
+
+  camera.aspect =
+    window.innerWidth / window.innerHeight;
+
+  camera.updateProjectionMatrix();
+
+  renderer.setSize(
+    window.innerWidth,
+    window.innerHeight
+  );
+
+});
+
+</script>
+
+</body>
+</html>
