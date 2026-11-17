@@ -134,6 +134,8 @@ export function createDirectorUI({ camera, controls, npcs, getActiveParent, onFo
     ["🧍 Parado", "idle"],
     ["🚶 Andando", "walk"],
     ["👋 Acenar", "wave"],
+    ["🗣️ Falando", "talk"],
+    ["🙌 Cintura", "hips"],
     ["🦘 Pular", "jump"]
   ].forEach(([lbl, act]) => {
     actRow.appendChild(makeBtn(lbl, () => {
@@ -143,6 +145,12 @@ export function createDirectorUI({ camera, controls, npcs, getActiveParent, onFo
   actRow.appendChild(makeBtn("🔄 Virar", () => {
     if (selectedNPC) npcs.flipFacing(selectedNPC);
   }, "#0f766e"));
+  actRow.appendChild(makeBtn("🔴 Pokébola", () => {
+    if (selectedNPC) npcs.setItem(selectedNPC, "pokeball");
+  }, "#b91c1c"));
+  actRow.appendChild(makeBtn("🔦 Lanterna", () => {
+    if (selectedNPC) npcs.setItem(selectedNPC, "flashlight");
+  }, "#b45309"));
 
   // 3. Posicionar e Elenco
   const sceneRow = row("Andar / Posicionar");

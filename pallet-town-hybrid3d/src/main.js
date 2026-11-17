@@ -1,14 +1,14 @@
 import * as THREE from "three";
-import { createScene } from "./scene.js?v=11";
-import { createLighting, setTimeOfDay, TIME_MODES } from "./lighting.js?v=11";
-import { addEnvironment } from "./environment.js?v=11";
-import { createBuilding } from "./buildings.js?v=11";
-import { createInterior } from "./interiors.js?v=11";
-import { createCamera } from "./camera.js?v=11";
-import { createCinematics } from "./cinematics.js?v=11";
-import { createNPCs } from "./npcs.js?v=11";
-import { createDirectorUI } from "./director.js?v=11";
-import { MAP } from "../config/map.js?v=11";
+import { createScene } from "./scene.js?v=27";
+import { createLighting, setTimeOfDay, TIME_MODES } from "./lighting.js?v=27";
+import { addEnvironment } from "./environment.js?v=27";
+import { createBuilding } from "./buildings.js?v=27";
+import { createInterior } from "./interiors.js?v=27";
+import { createCamera } from "./camera.js?v=27";
+import { createCinematics } from "./cinematics.js?v=27";
+import { createNPCs } from "./npcs.js?v=27";
+import { createDirectorUI } from "./director.js?v=27";
+import { MAP } from "../config/map.js?v=27";
 
 const scene = createScene();
 const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
